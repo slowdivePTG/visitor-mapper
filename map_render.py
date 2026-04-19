@@ -9,38 +9,37 @@ def generate_folium_map(records):
     html_data = []
 
     if records:
-        # 1. The Current/Newest Visitor (Shining Dot)
-        lat, lon, city, country, ts = records[0]
-        if lat is not None and lon is not None:
-            html_data.append({
-                "lat": lat,
-                "lng": lon,
-                "city": city if city else "Unknown City",
-                "country": country if country else "",
-                "is_current": True
-            })
+        grouped = {}
+        current_key = None
 
-        # 2. Historical Visitors (Flat 2D HTML Dots)
-        for lat, lon, city, country, ts in records[1:]:
-            if lat is not None and lon is not None:
-                html_data.append({
+        for lat, lon, city, country, ts in records:
+            if lat is None or lon is None:
+                continue
+            
+            c_name = city if city else "Unknown City"
+            c_country = country if country else ""
+            key = (c_name, c_country)
+
+            # The first valid record we encounter is the most recent visitor
+            if current_key is None:
+                current_key = key
+
+            if key not in grouped:
+                grouped[key] = {
                     "lat": lat,
                     "lng": lon,
-                    "city": city if city else "Unknown City",
-                    "country": country if country else "",
+                    "city": c_name,
+                    "country": c_country,
+                    "count": 0,
                     "is_current": False
-                })
+                }
+            
+            grouped[key]["count"] += 1
 
-        # 2. Historical Visitors (Flat 2D HTML Dots)
-        for lat, lon, city, country, ts in records[1:]:
-            if lat is not None and lon is not None:
-                html_data.append({
-                    "lat": lat,
-                    "lng": lon,
-                    "city": city if city else "Unknown City",
-                    "country": country if country else "",
-                    "is_current": False
-                })
+        if current_key in grouped:
+            grouped[current_key]["is_current"] = True
+            
+        html_data = list(grouped.values())
 
     html_template = f"""
     <!DOCTYPE html>
@@ -51,16 +50,12 @@ def generate_folium_map(records):
             body {{ margin: 0; padding: 0; background-color: transparent; overflow: hidden; }}
             #globeViz {{ width: 100vw; height: 100vh; }}
             .pulsing-dot {{
-                width: 14px;
-                height: 14px;
                 background-color: #DEA193; /* Rose gold */
                 border-radius: 50%;
                 box-shadow: 0 0 0 rgba(222,161,147, 0.4);
                 animation: pulse 2s infinite;
             }}
             .historical-dot {{
-                width: 7px;
-                height: 7px;
                 background-color: #6D8196; /* Grey-ish blue */
                 border-radius: 50%;
                 box-shadow: 0 0 2px rgba(0,0,0,0.3); /* Subtle shadow to detach from globe */
@@ -127,21 +122,32 @@ def generate_folium_map(records):
                 // All visitors (Current and Historical) rendered as flat 2D HTML elements
                 .htmlElementsData(htmlData)
                 .htmlElement(d => {{
+                    // Logarithmic Size Scaling
+                    const maxCount = Math.max(1, ...htmlData.map(x => x.count));
+                    const minSize = 5;
+                    const maxSize = 15;
+                    let ratio = 0;
+                    if (maxCount > 1) {{
+                        ratio = Math.log(d.count) / Math.log(maxCount);
+                    }}
+                    const size = minSize + (maxSize - minSize) * ratio;
+
                     const el = document.createElement('div');
                     const locationText = d.country ? `${{d.city}}, ${{d.country}}` : d.city;
+                    const visitorText = `${{d.count}} visitor${{d.count > 1 ? 's' : ''}}`;
                     
                     if (d.is_current) {{
                         el.innerHTML = `
                             <div class="visitor-container">
-                                <div class="pulsing-dot"></div>
-                                <div class="html-tooltip"><b>${{locationText}}</b><br><small>Current Visitor</small></div>
+                                <div class="pulsing-dot" style="width: ${{size}}px; height: ${{size}}px;"></div>
+                                <div class="html-tooltip"><b>${{locationText}}</b><br><small>Current Visitor</small><br><small>${{visitorText}}</small></div>
                             </div>
                         `;
                     }} else {{
                         el.innerHTML = `
                             <div class="visitor-container">
-                                <div class="historical-dot"></div>
-                                <div class="html-tooltip"><b>${{locationText}}</b></div>
+                                <div class="historical-dot" style="width: ${{size}}px; height: ${{size}}px;"></div>
+                                <div class="html-tooltip"><b>${{locationText}}</b><br><small>${{visitorText}}</small></div>
                             </div>
                         `;
                     }}
