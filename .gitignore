@@ -1,0 +1,33 @@
+# Environments
+.env
+.venv/
+venv/
+env/
+
+# Python / Byte-compiled
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Database
+visitors.db
+*.sqlite3
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# uv / pip cache
+.cache/
