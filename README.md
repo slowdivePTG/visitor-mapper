@@ -74,3 +74,9 @@ This application is ready to be deployed to Render's free tier.
 4. **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 5. **Environment Variables**:
    - Add `DATABASE_URL` and set its value to your **Neon.tech connection string**. *(Note: Ensure you do NOT wrap the string in quotation marks `"` inside the Render dashboard).*
+
+## 🤖 Vibe Coding
+
+This project is an exercise in **vibe coding**. The human developer provided the creative direction, architectural constraints (like avoiding ephemeral file systems on free tiers), and overall vibes. 
+
+The implementation, debugging, Git operations, and deployment configurations were autonomously generated and refined by **opencode**, an interactive CLI AI agent. 
