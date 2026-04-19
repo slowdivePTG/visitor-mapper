@@ -77,6 +77,5 @@ This application is ready to be deployed to Render's free tier.
 
 ## 🤖 Vibe Coding
 
-This project is an exercise in **vibe coding**. The human developer provided the creative direction, architectural constraints (like avoiding ephemeral file systems on free tiers), and overall vibes. 
-
-The implementation, debugging, Git operations, and deployment configurations were autonomously generated and refined by **opencode**, an interactive CLI AI agent. 
+This project is an exercise in **vibe coding**. 
+The implementation, debugging, Git operations, and deployment configurations were autonomously generated and refined by **opencode**, an interactive CLI AI agent, and Gemini 3.1 pro.
