@@ -31,3 +31,8 @@ Thumbs.db
 
 # uv / pip cache
 .cache/
+
+# Python package metadata
+*.egg-info/
+build/
+dist/
