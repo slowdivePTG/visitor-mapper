@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: visitor-map-backend
+Version: 0.1.0
+Summary: Lightweight visitor tracking backend and map generator for GitHub Pages
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.100.0
+Requires-Dist: uvicorn[standard]>=0.23.0
+Requires-Dist: httpx>=0.25.0
+Requires-Dist: folium>=0.14.0
+Requires-Dist: psycopg2-binary>=2.9.10
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
