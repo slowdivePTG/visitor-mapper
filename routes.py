@@ -32,6 +32,19 @@ async def track_visitor(request: Request):
             conn = get_db_connection()
             try:
                 cursor = conn.cursor()
+                
+                # Check if this IP was already tracked in the last 24 hours
+                cursor.execute("""
+                    SELECT id FROM visitors 
+                    WHERE ip_address = %s 
+                    AND timestamp > NOW() - INTERVAL '24 hours'
+                    LIMIT 1
+                """, (ip_address,))
+                
+                if cursor.fetchone():
+                    return JSONResponse({"status": "ignored", "message": "IP recently tracked"})
+
+                # If not tracked recently, insert them!
                 cursor.execute("""
                     INSERT INTO visitors (ip_address, latitude, longitude, city, country, timestamp)
                     VALUES (%s, %s, %s, %s, %s, %s)

@@ -1,40 +1,67 @@
-import httpx
-import time
+import os
+import datetime
+import random
+from dotenv import load_dotenv
 
-# A list of real public IP addresses from around the world
-TEST_IPS = [
-    "8.8.8.8",         # Mountain View, USA
-    "210.130.1.1",     # Tokyo, Japan
-    "177.43.255.255",  # Sao Paulo, Brazil
-    "41.190.211.0",    # Cape Town, South Africa
-    "114.114.114.114", # Nanjing, China
-    "82.165.230.17",   # Berlin, Germany
-    "139.130.4.5"      # Sydney, Australia
+# Load .env file if it exists
+load_dotenv()
+
+from database import get_db_connection
+
+# Mock cities with varying visitor weights to test the logarithmic scaling
+cities = [
+    {"city": "Chicago", "country": "United States", "lat": 41.8781, "lon": -87.6298, "weight": 45}, # Max size dot
+    {"city": "London", "country": "United Kingdom", "lat": 51.5074, "lon": -0.1278, "weight": 12},  # Medium dot
+    {"city": "Tokyo", "country": "Japan", "lat": 35.6762, "lon": 139.6503, "weight": 4},           # Small-ish dot
+    {"city": "Paris", "country": "France", "lat": 48.8566, "lon": 2.3522, "weight": 2},            # Small dot
 ]
 
-def seed_visitors():
-    print("Sending mocked requests to local backend to test IP geolocation...")
-    
-    with httpx.Client() as client:
-        for ip in TEST_IPS:
-            print(f"Tracking IP: {ip} ... ", end="")
-            try:
-                # Spoof the X-Forwarded-For header to simulate a real visitor
-                response = client.get(
-                    "http://localhost:8000/api/track",
-                    headers={"X-Forwarded-For": ip}
-                )
-                if response.status_code == 200 and response.json().get("status") == "success":
-                    print("Success!")
-                else:
-                    print(f"Failed! Response: {response.text}")
-            except httpx.ConnectError:
-                print("\nError: Could not connect to the local server.")
-                print("Make sure 'uvicorn main:app --reload' is running in another terminal.")
-                return
-            
-            # Sleep briefly to avoid overwhelming the free ip-api.com endpoint
-            time.sleep(1.5)
+def seed_db():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        now = datetime.datetime.now(datetime.timezone.utc)
+        records = []
+        
+        # 1. Insert historical visitors based on weights
+        for city_data in cities:
+            for _ in range(city_data["weight"]):
+                # Randomize past timestamps (1 to 30 days ago)
+                ts = now - datetime.timedelta(minutes=random.randint(10, 40000))
+                records.append((
+                    f"192.168.1.{random.randint(1, 255)}", # Fake IP
+                    city_data["lat"],
+                    city_data["lon"],
+                    city_data["city"],
+                    city_data["country"],
+                    ts
+                ))
+        
+        # 2. Insert a CURRENT visitor (Most recent timestamp)
+        # We will put the current visitor in Sydney!
+        records.append((
+            "10.0.0.1",
+            -33.8688,
+            151.2093,
+            "Sydney",
+            "Australia",
+            now # Exact current time makes it the "Current Visitor"
+        ))
+
+        cursor.executemany("""
+            INSERT INTO visitors (ip_address, latitude, longitude, city, country, timestamp)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, records)
+        
+        conn.commit()
+        conn.close()
+        print(f"✅ Successfully seeded {len(records)} mock visitors into the database!")
+        print("🌍 You can now view the scaling dots at http://localhost:8000/map")
+        
+    except Exception as e:
+        print(f"❌ Error seeding database: {e}")
+        print("Make sure you have a .env file with your DATABASE_URL set up locally!")
 
 if __name__ == "__main__":
-    seed_visitors()
+    seed_db()
