@@ -33,11 +33,11 @@ async def track_visitor(request: Request):
             try:
                 cursor = conn.cursor()
                 
-                # Check if this IP was already tracked in the last 24 hours
+                # Check if this IP was already tracked in the last 1 hour
                 cursor.execute("""
                     SELECT id FROM visitors 
                     WHERE ip_address = %s 
-                    AND timestamp > NOW() - INTERVAL '24 hours'
+                    AND timestamp > NOW() - INTERVAL '1 hour'
                     LIMIT 1
                 """, (ip_address,))
                 
