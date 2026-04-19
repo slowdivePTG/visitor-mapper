@@ -154,6 +154,7 @@ def generate_folium_map(records):
                     
                     el.style.transform = 'translate(-50%, -50%)'; // center the dot
                     el.style.pointerEvents = 'auto'; // CRITICAL: allows the HTML element to receive mouse hover events!
+                    el.style.zIndex = d.is_current ? 1000 : 1; // Ensure current visitor pulses on top of historical dots
                     
                     // Stop rotation when any visitor dot is hovered
                     el.onmouseenter = () => {{ myGlobe.controls().autoRotateSpeed = 0; }};
