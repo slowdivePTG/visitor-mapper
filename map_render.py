@@ -1,10 +1,8 @@
 import json
 
-def generate_folium_map(records):
+def generate_globe_map(records):
     """
     Generate a 3D revolving Globe.gl map showing visitor locations.
-    Kept the function name `generate_folium_map` for compatibility with routes.py,
-    but it now returns a fully custom Globe.gl HTML template.
     """
     html_data = []
 
@@ -50,20 +48,20 @@ def generate_folium_map(records):
             body {{ margin: 0; padding: 0; background-color: transparent; overflow: hidden; }}
             #globeViz {{ width: 100vw; height: 100vh; }}
             .pulsing-dot {{
-                background-color: #DEA193; /* Rose gold */
+                background-color: #fe640b; /* Catppuccin Latte Peach (Orange) */
                 border-radius: 50%;
-                box-shadow: 0 0 0 rgba(222,161,147, 0.4);
+                box-shadow: 0 0 0 rgba(254,100,11, 0.4);
                 animation: pulse 2s infinite;
             }}
             .historical-dot {{
-                background-color: #6D8196; /* Grey-ish blue */
+                background-color: #1e66f5; /* Catppuccin Latte Blue */
                 border-radius: 50%;
                 box-shadow: 0 0 2px rgba(0,0,0,0.3); /* Subtle shadow to detach from globe */
             }}
             @keyframes pulse {{
-                0% {{ box-shadow: 0 0 0 0 rgba(222,161,147, 0.7); }}
-                70% {{ box-shadow: 0 0 0 15px rgba(222,161,147, 0); }}
-                100% {{ box-shadow: 0 0 0 0 rgba(222,161,147, 0); }}
+                0% {{ box-shadow: 0 0 0 0 rgba(254,100,11, 0.7); }}
+                70% {{ box-shadow: 0 0 0 15px rgba(254,100,11, 0); }}
+                100% {{ box-shadow: 0 0 0 0 rgba(254,100,11, 0); }}
             }}
             .globe-tooltip {{
                 background: rgba(0,0,0,0.8);
