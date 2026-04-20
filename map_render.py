@@ -48,24 +48,24 @@ def generate_globe_map(records):
             body {{ margin: 0; padding: 0; background-color: transparent; overflow: hidden; }}
             #globeViz {{ width: 100vw; height: 100vh; }}
             .pulsing-dot {{
-                background-color: #DEA193; /* Rose gold */
+                background-color: var(--current-dot);
                 border-radius: 50%;
-                box-shadow: 0 0 0 rgba(222,161,147, 0.4);
+                box-shadow: 0 0 0 rgba(var(--current-dot-rgba), 0.4);
                 animation: pulse 2s infinite;
             }}
             .historical-dot {{
-                background-color: #6D8196; /* Grey-ish blue */
+                background-color: var(--history-dot);
                 border-radius: 50%;
                 box-shadow: 0 0 2px rgba(0,0,0,0.3); /* Subtle shadow to detach from globe */
             }}
             @keyframes pulse {{
-                0% {{ box-shadow: 0 0 0 0 rgba(222,161,147, 0.7); }}
-                70% {{ box-shadow: 0 0 0 15px rgba(222,161,147, 0); }}
-                100% {{ box-shadow: 0 0 0 0 rgba(222,161,147, 0); }}
+                0% {{ box-shadow: 0 0 0 0 rgba(var(--current-dot-rgba), 0.7); }}
+                70% {{ box-shadow: 0 0 0 15px rgba(var(--current-dot-rgba), 0); }}
+                100% {{ box-shadow: 0 0 0 0 rgba(var(--current-dot-rgba), 0); }}
             }}
             .globe-tooltip {{
-                background: rgba(0,0,0,0.8);
-                color: white;
+                background: var(--tooltip-bg, rgba(0,0,0,0.8));
+                color: var(--tooltip-text, white);
                 padding: 5px 10px;
                 border-radius: 4px;
                 font-family: sans-serif;
@@ -82,8 +82,8 @@ def generate_globe_map(records):
                 bottom: 25px;
                 left: 50%;
                 transform: translateX(-50%);
-                background: rgba(0,0,0,0.8);
-                color: white;
+                background: var(--tooltip-bg);
+                color: var(--tooltip-text);
                 padding: 5px 10px;
                 border-radius: 4px;
                 font-family: sans-serif;
@@ -105,6 +105,19 @@ def generate_globe_map(records):
         <script>
             const htmlData = {json.dumps(html_data)};
 
+            const themes = {{
+                dark: {{ // Catppuccin Mocha
+                    ocean: "#1e1e2e", atmosphere: "#585b70", land: "#585b70",
+                    currentDot: "#cba6f7", currentDotRgba: "203, 166, 247",
+                    historyDot: "#bac2de", tooltipBg: "rgba(108, 112, 134, 0.9)", tooltipText: "#11111b"
+                }},
+                light: {{ // Catppuccin Latte
+                    ocean: "#eff1f5", atmosphere: "#ccd0da", land: "#ccd0da",
+                    currentDot: "#8839ef", currentDotRgba: "136, 57, 239",
+                    historyDot: "#6c6f85", tooltipBg: "rgba(156, 160, 176, 0.9)", tooltipText: "#e6e9ef"
+                }}
+            }};
+
             // Define a dynamic base speed that will adjust based on zoom level
             let currentBaseSpeed = 1.5;
 
@@ -114,7 +127,7 @@ def generate_globe_map(records):
                 .backgroundColor('rgba(0,0,0,0)') // Fully transparent canvas!
                 .showGlobe(true)
                 .showAtmosphere(true) // Re-enables the 3D edge shading!
-                .atmosphereColor('#8a9cb0') // Darker grey-blue shadow for deeper contrast at the edge
+                .atmosphereColor(themes.dark.atmosphere) // Darker grey-blue shadow for deeper contrast at the edge
                 .atmosphereAltitude(0.10) // Shallower atmosphere (reduced from 0.15)
                 
                 // All visitors (Current and Historical) rendered as flat 2D HTML elements
@@ -166,7 +179,7 @@ def generate_globe_map(records):
             // Since Globe.gl uses Three.js internally, the material is a Three material.
             // By setting the emissive color (which produces light itself), the sphere becomes perfectly flat 2D!
             globeMat.color.set('#000000'); // Base color black
-            globeMat.emissive.set('#f3f6f8'); 
+            globeMat.emissive.set(themes.dark.ocean); 
             globeMat.emissiveIntensity = 1.0; 
 
             // 3. Fetch landmass GeoJSON
@@ -177,12 +190,50 @@ def generate_globe_map(records):
                 .then(countries => {{
                     myGlobe
                         .polygonsData(countries.features)
-                        .polygonCapColor(() => '#bec0c9') // Darker grey land
-                        .polygonSideColor(() => '#bec0c9')
-                        .polygonStrokeColor(() => '#bec0c9') // Same as cap color -> invisible borders!
+                        .polygonCapColor(() => themes[currentTheme].land) // Darker grey land
+                        .polygonSideColor(() => themes[currentTheme].land)
+                        .polygonStrokeColor(() => themes[currentTheme].land) // Same as cap color -> invisible borders!
                         .polygonAltitude(0.005);
                 }})
                 .catch(err => console.error("Error loading landmass data:", err));
+
+            // Theme switching logic
+            let currentTheme = 'dark'; // default
+            
+            function setTheme(mode) {{
+                const t = themes[mode] || themes.dark;
+                currentTheme = mode;
+                
+                // Update CSS variables
+                document.documentElement.style.setProperty('--current-dot', t.currentDot);
+                document.documentElement.style.setProperty('--current-dot-rgba', t.currentDotRgba);
+                document.documentElement.style.setProperty('--history-dot', t.historyDot);
+                document.documentElement.style.setProperty('--tooltip-bg', t.tooltipBg);
+                document.documentElement.style.setProperty('--tooltip-text', t.tooltipText);
+                
+                // Update Globe colors
+                myGlobe.atmosphereColor(t.atmosphere);
+                
+                const gMat = myGlobe.globeMaterial();
+                if (gMat) {{
+                    gMat.emissive.set(t.ocean);
+                }}
+                
+                myGlobe.polygonCapColor(() => t.land)
+                       .polygonSideColor(() => t.land)
+                       .polygonStrokeColor(() => t.land);
+            }}
+
+            // Initialization: Read initial theme from URL params or system preference
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialTheme = urlParams.get('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            setTheme(initialTheme);
+
+            window.addEventListener('message', (event) => {{
+                if (event.data && event.data.theme) {{
+                    setTheme(event.data.theme);
+                }}
+            }});
 
             // 4. Auto-rotate controls
             myGlobe.controls().autoRotate = true;
