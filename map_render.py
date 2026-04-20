@@ -48,20 +48,20 @@ def generate_globe_map(records):
             body {{ margin: 0; padding: 0; background-color: transparent; overflow: hidden; }}
             #globeViz {{ width: 100vw; height: 100vh; }}
             .pulsing-dot {{
-                background-color: #fe640b; /* Catppuccin Latte Peach (Orange) */
+                background-color: #DEA193; /* Rose gold */
                 border-radius: 50%;
-                box-shadow: 0 0 0 rgba(254,100,11, 0.4);
+                box-shadow: 0 0 0 rgba(222,161,147, 0.4);
                 animation: pulse 2s infinite;
             }}
             .historical-dot {{
-                background-color: #1e66f5; /* Catppuccin Latte Blue */
+                background-color: #6D8196; /* Grey-ish blue */
                 border-radius: 50%;
                 box-shadow: 0 0 2px rgba(0,0,0,0.3); /* Subtle shadow to detach from globe */
             }}
             @keyframes pulse {{
-                0% {{ box-shadow: 0 0 0 0 rgba(254,100,11, 0.7); }}
-                70% {{ box-shadow: 0 0 0 15px rgba(254,100,11, 0); }}
-                100% {{ box-shadow: 0 0 0 0 rgba(254,100,11, 0); }}
+                0% {{ box-shadow: 0 0 0 0 rgba(222,161,147, 0.7); }}
+                70% {{ box-shadow: 0 0 0 15px rgba(222,161,147, 0); }}
+                100% {{ box-shadow: 0 0 0 0 rgba(222,161,147, 0); }}
             }}
             .globe-tooltip {{
                 background: rgba(0,0,0,0.8);
@@ -177,9 +177,9 @@ def generate_globe_map(records):
                 .then(countries => {{
                     myGlobe
                         .polygonsData(countries.features)
-                        .polygonCapColor(() => '#e0e0e3') // Light grey land
-                        .polygonSideColor(() => '#e0e0e3')
-                        .polygonStrokeColor(() => '#e0e0e3') // Same as cap color -> invisible borders!
+                        .polygonCapColor(() => '#9ca0b0') // Darker grey land
+                        .polygonSideColor(() => '#9ca0b0')
+                        .polygonStrokeColor(() => '#9ca0b0') // Same as cap color -> invisible borders!
                         .polygonAltitude(0.005);
                 }})
                 .catch(err => console.error("Error loading landmass data:", err));
