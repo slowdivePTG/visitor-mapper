@@ -6,7 +6,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 
 from database import get_db_connection
 from services import get_client_ip, fetch_geolocation, is_bot_ip
-from map_render import generate_folium_map
+from map_render import generate_globe_map
 
 router = APIRouter()
 
@@ -80,8 +80,8 @@ async def get_map():
     finally:
         conn.close()
 
-    # Generate Folium map HTML
-    map_html = generate_folium_map(records)
+    # Generate Globe map HTML
+    map_html = generate_globe_map(records)
 
     # Return the map's HTML representation directly
     return HTMLResponse(content=map_html)
