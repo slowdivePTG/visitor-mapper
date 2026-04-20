@@ -177,9 +177,9 @@ def generate_globe_map(records):
                 .then(countries => {{
                     myGlobe
                         .polygonsData(countries.features)
-                        .polygonCapColor(() => '#9ca0b0') // Darker grey land
-                        .polygonSideColor(() => '#9ca0b0')
-                        .polygonStrokeColor(() => '#9ca0b0') // Same as cap color -> invisible borders!
+                        .polygonCapColor(() => '#bec0c9') // Darker grey land
+                        .polygonSideColor(() => '#bec0c9')
+                        .polygonStrokeColor(() => '#bec0c9') // Same as cap color -> invisible borders!
                         .polygonAltitude(0.005);
                 }})
                 .catch(err => console.error("Error loading landmass data:", err));
