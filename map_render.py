@@ -155,9 +155,10 @@ def generate_globe_map(records):
                             </div>
                         `;
                     }} else {{
+                        const historicalSize = size * 0.5; // Make historical dots 50% smaller
                         el.innerHTML = `
                             <div class="visitor-container">
-                                <div class="historical-dot" style="width: ${{size}}px; height: ${{size}}px;"></div>
+                                <div class="historical-dot" style="width: ${{historicalSize}}px; height: ${{historicalSize}}px;"></div>
                                 <div class="html-tooltip"><b>${{locationText}}</b><br><small>${{visitorText}}</small></div>
                             </div>
                         `;
