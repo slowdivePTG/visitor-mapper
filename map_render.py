@@ -108,7 +108,7 @@ def generate_globe_map(records):
             const themes = {{
                 dark: {{ // Catppuccin Mocha
                     ocean: "#1e1e2e", atmosphere: "#585b70", land: "#585b70",
-                    currentDot: "#cba6f7", currentDotRgba: "203, 166, 247",
+                    currentDot: "#f5e0dc", currentDotRgba: "245, 224, 220",
                     historyDot: "#bac2de", tooltipBg: "rgba(108, 112, 134, 0.9)", tooltipText: "#11111b"
                 }},
                 light: {{ // Catppuccin Latte
