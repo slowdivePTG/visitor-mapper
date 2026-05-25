@@ -214,7 +214,7 @@ body {{ background: transparent; overflow: hidden; }}
 <body>
 <div id="globeViz"></div>
 <script type="module">
-import Globe from "https://esm.sh/globe.gl";
+import Globe from "https://esm.sh/globe.gl@2.31.0";
 
 var STYLE = {json.dumps(sc)};
 
@@ -352,13 +352,7 @@ var myGlobe = Globe()(document.getElementById("globeViz"))
     }});
 
 // ---------- Globe material (flat emissive surface) ----------
-setTimeout(function () {{
-    try {{
-        // Transparent background so parent page shows through
-        myGlobe._renderer.setClearAlpha(0);
-    }} catch (e) {{
-        console.log("setClearAlpha not available:", e);
-    }}
+(function initGlobeMaterial(retries) {{
     var mat = myGlobe.globeMaterial();
     if (mat) {{
         mat.color.set("#000000");
@@ -366,8 +360,25 @@ setTimeout(function () {{
         mat.emissiveIntensity = 1.0;
         mat.roughness = 1.0;
         mat.metalness = 0.0;
+        trySetClearAlpha(20);
+    }} else if (retries > 0) {{
+        setTimeout(function () {{ initGlobeMaterial(retries - 1); }}, 200);
     }}
-}}, 100);
+}})(30);
+
+function trySetClearAlpha(attempts) {{
+    try {{
+        if (myGlobe._renderer && typeof myGlobe._renderer.setClearAlpha === "function") {{
+            myGlobe._renderer.setClearAlpha(0);
+        }} else if (attempts > 0) {{
+            setTimeout(function () {{ trySetClearAlpha(attempts - 1); }}, 200);
+        }}
+    }} catch (e) {{
+        if (attempts > 0) {{
+            setTimeout(function () {{ trySetClearAlpha(attempts - 1); }}, 200);
+        }}
+    }}
+}}
 
 // Pause rotation while mouse is over the globe container
 var globeContainer = document.getElementById("globeViz");
@@ -394,9 +405,7 @@ function setTheme(mode) {{
 
         myGlobe.backgroundColor(t.bg);
         myGlobe.atmosphereColor(t.atmosphere);
-        try {{
-            myGlobe._renderer.setClearAlpha(0);
-        }} catch (e) {{}}
+        trySetClearAlpha(20);
         var mat = myGlobe.globeMaterial();
         if (mat) {{
             console.log("setTheme: setting emissive to " + t.ocean);
