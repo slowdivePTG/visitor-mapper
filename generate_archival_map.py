@@ -141,7 +141,7 @@ def main():
         records = load_records(args.input)
         label = "archival"
 
-    html = generate_globe_map(records)
+    html = generate_globe_map(records, show_current=False)
 
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
     with open(args.output, "w") as f:

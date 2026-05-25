@@ -53,13 +53,16 @@ def _get_land_skeleton():
 # ---------------------------------------------------------------------------
 # Public entry-point used by routes.py
 # ---------------------------------------------------------------------------
-def generate_globe_map(records):
+def generate_globe_map(records, show_current=True):
     """Return a complete HTML page rendering a Fibonacci land-matrix globe.
 
     Parameters
     ----------
     records : list of (lat, lon, city, country, timestamp) tuples
         Visitor records from the database, sorted newest-first.
+    show_current : bool
+        Whether to highlight the newest record as a pulsing "current visitor" dot.
+        Set False for archival maps.
 
     Returns
     -------
@@ -71,7 +74,7 @@ def generate_globe_map(records):
     # ------ Group & snap visitors to the nearest land point ------
     land_counts = {i: 0 for i in range(len(land_lat))}
     land_cities = {i: {} for i in range(len(land_lat))}
-    current_visitor = None  # dict for the newest visitor's HTML overlay
+    current_visitor = None  # dict for the newest visitor's HTML overlay (live only)
 
     if records:
         grouped = {}
@@ -104,7 +107,7 @@ def generate_globe_map(records):
             city_label = key[0]
             land_cities[idx][city_label] = land_cities[idx].get(city_label, 0) + data["count"]
 
-            if key == current_key:
+            if show_current and key == current_key:
                 current_visitor = {
                     "lat": float(land_lat[idx]),
                     "lng": float(land_lon[idx]),
@@ -151,14 +154,13 @@ body {{ background: transparent; overflow: hidden; }}
 .pulsing-dot {{
     background-color: var(--current-dot);
     border-radius: 50%;
-    width: 14px;
-    height: 14px;
-    box-shadow: 0 0 0 rgba(var(--current-dot-rgba), 0.4);
+    width: var(--dot-size, 14px);
+    height: var(--dot-size, 14px);
     animation: pulse 2s infinite;
 }}
 @keyframes pulse {{
     0%   {{ box-shadow: 0 0 0 0 rgba(var(--current-dot-rgba), 0.7); }}
-    70%  {{ box-shadow: 0 0 0 15px rgba(var(--current-dot-rgba), 0); }}
+    70%  {{ box-shadow: 0 0 0 var(--pulse-radius, 15px) rgba(var(--current-dot-rgba), 0); }}
     100% {{ box-shadow: 0 0 0 0 rgba(var(--current-dot-rgba), 0); }}
 }}
 .visitor-container {{
@@ -312,13 +314,7 @@ var myGlobe = Globe()(document.getElementById("globeViz"))
         }}
         return html + "</div>";
     }})
-    .onPointHover(function (d) {{
-        if (d) {{
-            myGlobe.controls().autoRotateSpeed = 0;
-        }} else {{
-            myGlobe.controls().autoRotateSpeed = currentBaseSpeed;
-        }}
-    }})
+    .onPointHover(function (d) {{}})
 
     // Layer 2 — single HTML overlay for the pulsing current-visitor dot
     .htmlElementsData(currentData)
@@ -358,6 +354,15 @@ setTimeout(function () {{
         mat.metalness = 0.0;
     }}
 }}, 100);
+
+// Pause rotation while mouse is over the globe container
+var globeContainer = document.getElementById("globeViz");
+globeContainer.addEventListener("mouseenter", function () {{
+    myGlobe.controls().autoRotateSpeed = 0;
+}});
+globeContainer.addEventListener("mouseleave", function () {{
+    myGlobe.controls().autoRotateSpeed = currentBaseSpeed;
+}});
 
 // ---------- Theme switching ----------
 var currentBaseSpeed = STYLE.autoRotateSpeed;
@@ -443,6 +448,14 @@ setInterval(function () {{
             currentBaseSpeed = Math.max(0.05, Math.min(1.5, pov.altitude * 0.6));
             if (myGlobe.controls().autoRotateSpeed !== 0) {{
                 myGlobe.controls().autoRotateSpeed = currentBaseSpeed;
+            }}
+            // Scale pulsing current-visitor dot proportionally to zoom
+            var dot = document.querySelector(".pulsing-dot");
+            if (dot) {{
+                var scale = 2.5 / pov.altitude;
+                var size = Math.round(14 * scale);
+                document.documentElement.style.setProperty("--dot-size", size + "px");
+                document.documentElement.style.setProperty("--pulse-radius", Math.round(12 * scale) + "px");
             }}
         }}
     }} catch (e) {{
