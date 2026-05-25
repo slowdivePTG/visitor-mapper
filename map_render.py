@@ -168,13 +168,13 @@ body {{ background: transparent; overflow: hidden; }}
 .pulsing-dot {{
     background-color: var(--current-dot);
     border-radius: 50%;
-    width: var(--dot-size, 14px);
-    height: var(--dot-size, 14px);
+    width: var(--dot-size, 18px);
+    height: var(--dot-size, 18px);
     animation: pulse 2s infinite;
 }}
 @keyframes pulse {{
     0%   {{ box-shadow: 0 0 0 0 rgba(var(--current-dot-rgba), 0.7); }}
-    70%  {{ box-shadow: 0 0 0 var(--pulse-radius, 15px) rgba(var(--current-dot-rgba), 0); }}
+    70%  {{ box-shadow: 0 0 0 var(--pulse-radius, 25px) rgba(var(--current-dot-rgba), 0); }}
     100% {{ box-shadow: 0 0 0 0 rgba(var(--current-dot-rgba), 0); }}
 }}
 .visitor-container {{
@@ -470,8 +470,8 @@ setInterval(function () {{
                 var baseWin = Math.min(window.innerWidth, window.innerHeight);
                 var winScale = Math.min(1.0, baseWin / 800.0);
                 var finalScale = viewScale * winScale;
-                var size = Math.max(2, Math.round(14 * finalScale));
-                var pulse = Math.max(4, Math.round(12 * finalScale));
+                var size = Math.max(2, Math.round(17 * finalScale));
+                var pulse = Math.max(4, Math.round(23 * finalScale));
                 document.documentElement.style.setProperty("--dot-size", size + "px");
                 document.documentElement.style.setProperty("--pulse-radius", pulse + "px");
             }}
