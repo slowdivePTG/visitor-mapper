@@ -99,7 +99,8 @@ def generate_globe_map(records, show_current=True):
                     _ts = datetime.fromisoformat(_ts.replace('Z', '+00:00'))
                 except ValueError:
                     _ts = datetime.min.replace(tzinfo=timezone.utc)
-            elif _ts and _ts.tzinfo is None:
+            
+            if _ts and getattr(_ts, 'tzinfo', None) is None:
                 _ts = _ts.replace(tzinfo=timezone.utc)
 
             if _ts >= cutoff_time:
@@ -462,13 +463,17 @@ setInterval(function () {{
             if (myGlobe.controls().autoRotateSpeed !== 0) {{
                 myGlobe.controls().autoRotateSpeed = currentBaseSpeed;
             }}
-            // Scale pulsing current-visitor dot proportionally to zoom
+            // Scale pulsing current-visitor dot proportionally to zoom and window size
             var dot = document.querySelector(".pulsing-dot");
             if (dot) {{
-                var scale = 2.5 / pov.altitude;
-                var size = Math.round(14 * scale);
+                var viewScale = 2.5 / pov.altitude;
+                var baseWin = Math.min(window.innerWidth, window.innerHeight);
+                var winScale = Math.min(1.0, baseWin / 800.0);
+                var finalScale = viewScale * winScale;
+                var size = Math.max(2, Math.round(14 * finalScale));
+                var pulse = Math.max(4, Math.round(12 * finalScale));
                 document.documentElement.style.setProperty("--dot-size", size + "px");
-                document.documentElement.style.setProperty("--pulse-radius", Math.round(12 * scale) + "px");
+                document.documentElement.style.setProperty("--pulse-radius", pulse + "px");
             }}
         }}
     }} catch (e) {{
