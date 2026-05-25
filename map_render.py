@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import datetime, timezone, timedelta
 
 import numpy as np
 from scipy.spatial import KDTree
@@ -74,11 +75,15 @@ def generate_globe_map(records, show_current=True):
     # ------ Group & snap visitors to the nearest land point ------
     land_counts = {i: 0 for i in range(len(land_lat))}
     land_cities = {i: {} for i in range(len(land_lat))}
-    current_visitor = None  # dict for the newest visitor's HTML overlay (live only)
-
+    
+    current_data = []
+    
     if records:
         grouped = {}
-        current_key = None
+        active_keys = set()
+        
+        # cutoff time for "current visitor" (last 6 hours)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=6)
 
         for lat, lon, city, country, _ts in records:
             if lat is None or lon is None:
@@ -87,8 +92,18 @@ def generate_globe_map(records, show_current=True):
             c_country = country if country else ""
             key = (c_name, c_country)
 
-            if current_key is None:
-                current_key = key
+            # Ensure we can compare naive and aware datetimes if needed
+            if isinstance(_ts, str):
+                try:
+                    # simplistic fallback if string
+                    _ts = datetime.fromisoformat(_ts.replace('Z', '+00:00'))
+                except ValueError:
+                    _ts = datetime.min.replace(tzinfo=timezone.utc)
+            elif _ts and _ts.tzinfo is None:
+                _ts = _ts.replace(tzinfo=timezone.utc)
+
+            if _ts >= cutoff_time:
+                active_keys.add(key)
 
             if key not in grouped:
                 grouped[key] = {"lat": lat, "lng": lon, "count": 0}
@@ -107,14 +122,14 @@ def generate_globe_map(records, show_current=True):
             city_label = key[0]
             land_cities[idx][city_label] = land_cities[idx].get(city_label, 0) + data["count"]
 
-            if show_current and key == current_key:
-                current_visitor = {
+            if show_current and key in active_keys:
+                current_data.append({
                     "lat": float(land_lat[idx]),
                     "lng": float(land_lon[idx]),
                     "city": key[0],
                     "country": key[1],
                     "count": data["count"],
-                }
+                })
 
     # ------ Build point-cloud array (every land cell) ------
     point_cloud = []
@@ -126,8 +141,6 @@ def generate_globe_map(records, show_current=True):
             "count": cnt,
             "cities": [{"name": c[0], "count": c[1]} for c in cities],
         })
-
-    current_data = [current_visitor] if current_visitor else []
 
     return _build_html(point_cloud, current_data)
 
