@@ -28,25 +28,11 @@
     "timestamp": "2026-05-23 01:35:22.327442"
   },
   {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-05-22 21:24:01.521875"
-  },
-  {
     "latitude": 43.0745,
     "longitude": -76.1466,
     "city": "Syracuse",
     "country": "United States",
     "timestamp": "2026-05-21 13:04:07.478392"
-  },
-  {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-05-19 18:35:37.011692"
   },
   {
     "latitude": 21.0184,
@@ -91,20 +77,6 @@
     "timestamp": "2026-05-14 17:39:50.163963"
   },
   {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-05-11 23:05:51.995364"
-  },
-  {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-05-11 18:37:35.471169"
-  },
-  {
     "latitude": 39.911,
     "longitude": 116.395,
     "city": "Beijing",
@@ -124,13 +96,6 @@
     "city": "Ho Chi Minh City",
     "country": "Vietnam",
     "timestamp": "2026-05-10 13:58:51.709239"
-  },
-  {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-05-09 16:01:38.183608"
   },
   {
     "latitude": 51.7344,
@@ -189,13 +154,6 @@
     "timestamp": "2026-05-02 10:04:36.723372"
   },
   {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-05-01 14:21:58.153987"
-  },
-  {
     "latitude": 43.3026,
     "longitude": 5.36907,
     "city": "Marseille",
@@ -238,13 +196,6 @@
     "timestamp": "2026-04-25 04:14:08.782252"
   },
   {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-04-23 20:37:02.906582"
-  },
-  {
     "latitude": 38.9609,
     "longitude": -77.3429,
     "city": "Reston",
@@ -266,13 +217,6 @@
     "timestamp": "2026-04-22 21:24:30.227840"
   },
   {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-04-22 19:33:54.967782"
-  },
-  {
     "latitude": 36.6683,
     "longitude": 117.021,
     "city": "Jinan",
@@ -285,48 +229,6 @@
     "city": "Hammond",
     "country": "United States",
     "timestamp": "2026-04-22 05:12:34.336634"
-  },
-  {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-04-21 23:21:35.188552"
-  },
-  {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-04-20 22:37:55.085914"
-  },
-  {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-04-20 21:32:48.893527"
-  },
-  {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-04-20 20:13:18.505355"
-  },
-  {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-04-20 18:31:28.245595"
-  },
-  {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-04-20 17:18:56.797751"
   },
   {
     "latitude": 40.0345,
@@ -343,25 +245,11 @@
     "timestamp": "2026-04-20 00:58:11.095920"
   },
   {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-04-19 23:31:16.344834"
-  },
-  {
     "latitude": 22.5455,
     "longitude": 114.0683,
     "city": "Shenzhen",
     "country": "China",
     "timestamp": "2026-04-19 23:14:08.538551"
-  },
-  {
-    "latitude": 42.055,
-    "longitude": -87.6951,
-    "city": "Evanston",
-    "country": "United States",
-    "timestamp": "2026-04-19 22:45:36.190880"
   },
   {
     "latitude": 40.0359,

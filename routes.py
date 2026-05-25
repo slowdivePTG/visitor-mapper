@@ -29,6 +29,11 @@ async def track_visitor(request: Request):
             if is_bot_ip(geo_data):
                 return JSONResponse({"status": "ignored", "message": "Bot or data center IP ignored"})
 
+            # Skip known personal network IPs
+            filtered_prefixes = os.getenv("FILTERED_IP_PREFIXES", "").split(",")
+            if any(ip_address.startswith(p) for p in filtered_prefixes if p):
+                return JSONResponse({"status": "ignored", "message": "Filtered IP"})
+
             conn = get_db_connection()
             try:
                 cursor = conn.cursor()
