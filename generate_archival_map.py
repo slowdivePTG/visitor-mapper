@@ -130,8 +130,8 @@ def main():
     )
     args = parser.parse_args()
 
-    # Pre-initialise the land skeleton so the first render is fast
-    print("Pre-computing Fibonacci land matrix skeleton …")
+    # Pre-warm the land-skeleton cache so the first render is fast
+    print("Pre-loading land skeleton …")
     _get_land_skeleton()
 
     if args.live:

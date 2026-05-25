@@ -2,11 +2,20 @@ import json
 import os
 
 import numpy as np
-from global_land_mask import globe as land_mask_globe
 from scipy.spatial import KDTree
 
 # ---------------------------------------------------------------------------
 # Module-level cache for the Fibonacci land matrix skeleton.
+# Pre-computed locally; committed as land_skeleton.npz so global-land-mask
+# (which uses ~200 MB RAM) never runs in the server process.
+# ---------------------------------------------------------------------------
+
+_SKELETON_PATH = os.path.join(os.path.dirname(__file__), "land_skeleton.npz")
+
+_land_skeleton = None  # (land_lats_deg, land_lons_deg, kdtree)
+
+# ---------------------------------------------------------------------------
+# Shared globe-style config (commited alongside the repo)
 # ---------------------------------------------------------------------------
 
 _STYLE_PATH = os.path.join(
@@ -15,36 +24,18 @@ _STYLE_PATH = os.path.join(
 )
 with open(_STYLE_PATH) as _f:
     _STYLE_CONFIG = json.load(_f)
-# Module-level cache for the Fibonacci land matrix skeleton.
-# Computed once per server process; reused across all /map requests.
-# ---------------------------------------------------------------------------
-_land_skeleton = None  # (land_lats_deg, land_lons_deg, kdtree)
 
 
-def _get_land_skeleton(samples=20000):
+def _get_land_skeleton():
     global _land_skeleton
     if _land_skeleton is not None:
         return _land_skeleton
 
-    # 1)  Fibonacci sphere lattice
-    phi = np.pi * (3.0 - np.sqrt(5.0))
-    indices = np.arange(samples)
-    y = 1 - (indices / float(samples - 1)) * 2
-    radius = np.sqrt(1 - y * y)
-    theta = phi * indices
+    data = np.load(_SKELETON_PATH)
+    land_lat = data["lat"]
+    land_lon = data["lon"]
 
-    x = np.cos(theta) * radius
-    z = np.sin(theta) * radius
-
-    lat_deg = np.degrees(np.arcsin(y))
-    lon_deg = np.degrees(np.arctan2(z, x))
-
-    # 2)  Filter to land masses only
-    is_land = land_mask_globe.is_land(lat_deg, lon_deg)
-    land_lat = lat_deg[is_land]
-    land_lon = lon_deg[is_land]
-
-    # 3)  3-D cartesian for KDTree (avoids pole distortion)
+    # Build 3-D cartesian coordinates for KDTree (avoids pole distortion)
     lat_r = np.radians(land_lat)
     lon_r = np.radians(land_lon)
     cartesian = np.column_stack((
