@@ -1,0 +1,11 @@
+{
+  "pointRadius": {
+    "empty": 0.35,
+    "min": 0.5,
+    "max": 1.0
+  },
+  "autoRotateSpeed": 1.0,
+  "pointResolution": 6,
+  "pointAltitude": 0.005,
+  "atmosphereAltitude": 0.15
+}
