@@ -103,7 +103,7 @@ def generate_globe_map(records, show_current=True):
             if _ts and getattr(_ts, 'tzinfo', None) is None:
                 _ts = _ts.replace(tzinfo=timezone.utc)
 
-            if _ts >= cutoff_time:
+            if _ts is not None and _ts >= cutoff_time:
                 active_keys.add(key)
 
             if key not in grouped:

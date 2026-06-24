@@ -5,12 +5,15 @@ from fastapi import Request
 BOT_CITIES = {
     "council bluffs", # Google Cloud
     "four oaks",      # AWS / Infrastructure Hub
-    "ashburn",        # AWS us-east-1
+    "ashburn",        # AWS us-east-1 / Meta
+    "reston",         # Northern VA data center hub
+    "sterling",       # Northern VA data center hub
     "boardman",       # AWS
     "prineville",     # AWS
-    "boydton",        # Microsoft / Facebook
+    "boydton",        # Microsoft / Meta
     "coffeyville",    # Microsoft
     "des moines",     # Microsoft
+    "social circle",  # Meta (Facebook/Instagram data center)
     "santa clara",    # DigitalOcean / AWS
     "mountain view",  # Google HQ / Bots
 }
@@ -20,11 +23,56 @@ BOT_ISPS = [
     "amazon", "aws", "microsoft", "azure", "digitalocean", 
     "hetzner", "linode", "ovh", "cloudflare", "fastly", "akamai", 
     "alibaba", "tencent", "oracle", "hostinger", "datacamp", "choopa",
-    "google cloud", "datacenter", "hosting", "server"
+    "google cloud", "datacenter", "hosting", "server",
+    "facebook", "instagram", "meta"
 ]
 
 # Ambiguous ISPs (like Google, which could be Google Cloud bots OR real people using Google Fiber)
 AMBIGUOUS_ISPS = ["google", "google llc"]
+
+# Known tool/library User-Agents — never a real browser
+BOT_TOOL_UAS = [
+    "curl", "wget", "python-requests", "python-urllib",
+    "go-http-client", "java/", "libwww-perl",
+    "axios", "node-fetch", "okhttp",
+    "http.rb", "httpx", "httparty", "faraday",
+]
+
+# Known crawler User-Agents — should not be tracked as human visitors
+BOT_CRAWLER_UAS = [
+    "googlebot", "bingbot", "slurp", "duckduckbot",
+    "baiduspider", "yandexbot", "claudebot", "gptbot",
+    "chatgpt-user", "anthropic-ai", "bytespider",
+    "petalbot", "semrushbot", "ahrefsbot", "mj12bot",
+    "dotbot", "rogerbot", "facebookexternalhit",
+]
+
+# Substrings found in many automated user-agents
+BOT_UA_SUBSTRINGS = [
+    " bot", "crawler", "spider", "scraper", "scan",
+    "masscan", "nmap", "zgrab", "headlesschrome",
+]
+
+def is_bot_ua(user_agent: str) -> bool:
+    """Check if the User-Agent indicates a bot or automated tool."""
+    if not user_agent:
+        return True
+
+    ua = user_agent.lower()
+
+    for pattern in BOT_TOOL_UAS:
+        if ua.startswith(pattern):
+            return True
+
+    for pattern in BOT_CRAWLER_UAS:
+        if pattern in ua:
+            return True
+
+    for substr in BOT_UA_SUBSTRINGS:
+        if substr in ua:
+            return True
+
+    return False
 
 def is_bot_ip(geo_data: dict) -> bool:
     """Check if the geolocation data indicates a known bot or data center."""
@@ -49,6 +97,10 @@ def is_bot_ip(geo_data: dict) -> bool:
             return True
 
     return False
+
+def is_bot_webdriver(webdriver_val: str | None) -> bool:
+    """Check if the client-side navigator.webdriver signal indicates automation."""
+    return webdriver_val == "1"
 
 def get_client_ip(request: Request) -> str:
     """Extract the real IP address, prioritizing proxy headers."""
