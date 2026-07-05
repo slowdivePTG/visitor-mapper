@@ -50,6 +50,32 @@ def test_webdriver_bot_rejected():
         assert len(records) == 0
 
 @patch("httpx.AsyncClient.get")
+def test_blocked_ip_subnet_ignored(mock_get):
+    response = client.get("/api/track", headers={"X-Forwarded-For": "205.169.39.18"})
+    assert response.status_code == 200
+    assert response.json() == {"status": "ignored", "message": "Blocked IP range"}
+    mock_get.assert_not_called()
+
+    with sqlite3.connect(database.DB_FILE) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM visitors")
+        records = cursor.fetchall()
+        assert len(records) == 0
+
+@patch("httpx.AsyncClient.get")
+def test_blocked_ip_subnet_similar_ip_ignored(mock_get):
+    response = client.get("/api/track", headers={"X-Forwarded-For": "205.169.39.99"})
+    assert response.status_code == 200
+    assert response.json() == {"status": "ignored", "message": "Blocked IP range"}
+    mock_get.assert_not_called()
+
+    with sqlite3.connect(database.DB_FILE) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM visitors")
+        records = cursor.fetchall()
+        assert len(records) == 0
+
+@patch("httpx.AsyncClient.get")
 def test_simulated_public_ip(mock_get):
     mock_response = AsyncMock()
     mock_response.json = lambda: {

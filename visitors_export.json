@@ -1,5 +1,19 @@
 [
   {
+    "latitude": 33.5119,
+    "longitude": -101.9316,
+    "city": "Lubbock",
+    "country": "United States",
+    "timestamp": "2026-07-02 18:48:21.398984"
+  },
+  {
+    "latitude": 50.7617,
+    "longitude": 7.0512,
+    "city": "Bonn",
+    "country": "Germany",
+    "timestamp": "2026-07-02 16:06:38.885644"
+  },
+  {
     "latitude": 39.911,
     "longitude": 116.395,
     "city": "Beijing",

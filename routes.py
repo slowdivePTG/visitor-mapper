@@ -5,7 +5,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from database import get_db_connection, execute as db_execute
-from services import get_client_ip, fetch_geolocation, is_bot_ip, is_bot_ua, is_bot_webdriver
+from services import get_client_ip, fetch_geolocation, is_blocked_ip, is_bot_ip, is_bot_ua, is_bot_webdriver
 from map_render import generate_globe_map
 
 router = APIRouter()
@@ -18,6 +18,9 @@ async def track_visitor(request: Request):
     # Avoid tracking local dev IPs
     if ip_address in ("127.0.0.1", "::1", "localhost", "testclient"):
         return JSONResponse({"status": "ignored", "message": "Local IP ignored"})
+
+    if is_blocked_ip(ip_address):
+        return JSONResponse({"status": "ignored", "message": "Blocked IP range"})
 
     # Check client-side webdriver signal (cheap, no network call)
     webdriver_val = request.query_params.get("wd")

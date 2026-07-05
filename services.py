@@ -1,5 +1,11 @@
+import ipaddress
+
 import httpx
 from fastapi import Request
+
+BLOCKED_IP_NETWORKS = [
+    ipaddress.ip_network("205.169.39.0/24"),
+]
 
 # Known data center and bot cities (where ambiguous corporate IPs are treated as bots)
 BOT_CITIES = {
@@ -97,6 +103,15 @@ def is_bot_ip(geo_data: dict) -> bool:
             return True
 
     return False
+
+def is_blocked_ip(ip_address: str) -> bool:
+    """Check if an IP belongs to a manually blocked network."""
+    try:
+        parsed_ip = ipaddress.ip_address(ip_address)
+    except ValueError:
+        return False
+
+    return any(parsed_ip in network for network in BLOCKED_IP_NETWORKS)
 
 def is_bot_webdriver(webdriver_val: str | None) -> bool:
     """Check if the client-side navigator.webdriver signal indicates automation."""
