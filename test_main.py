@@ -10,6 +10,7 @@ import database
 database.DB_FILE = "test_visitors.db"
 database.init_db()
 
+import services
 from main import app
 
 client = TestClient(app)
@@ -53,7 +54,7 @@ def test_webdriver_bot_rejected():
 def test_blocked_ip_subnet_ignored(mock_get):
     response = client.get("/api/track", headers={"X-Forwarded-For": "205.169.39.18"})
     assert response.status_code == 200
-    assert response.json() == {"status": "ignored", "message": "Blocked IP range"}
+    assert response.json() == {"status": "ignored", "message": "Filtered IP range"}
     mock_get.assert_not_called()
 
     with sqlite3.connect(database.DB_FILE) as conn:
@@ -66,7 +67,7 @@ def test_blocked_ip_subnet_ignored(mock_get):
 def test_blocked_ip_subnet_similar_ip_ignored(mock_get):
     response = client.get("/api/track", headers={"X-Forwarded-For": "205.169.39.99"})
     assert response.status_code == 200
-    assert response.json() == {"status": "ignored", "message": "Blocked IP range"}
+    assert response.json() == {"status": "ignored", "message": "Filtered IP range"}
     mock_get.assert_not_called()
 
     with sqlite3.connect(database.DB_FILE) as conn:
@@ -74,6 +75,52 @@ def test_blocked_ip_subnet_similar_ip_ignored(mock_get):
         cursor.execute("SELECT * FROM visitors")
         records = cursor.fetchall()
         assert len(records) == 0
+
+@patch("httpx.AsyncClient.get")
+def test_configured_filtered_ip_network_ignored(mock_get, monkeypatch):
+    monkeypatch.setenv("FILTERED_IP_NETWORKS", "198.51.100.0/24")
+
+    response = client.get("/api/track", headers={"X-Forwarded-For": "198.51.100.23"})
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ignored", "message": "Filtered IP range"}
+    mock_get.assert_not_called()
+
+@patch("httpx.AsyncClient.get")
+def test_adjacent_ip_not_filtered_by_configured_network(mock_get, monkeypatch):
+    monkeypatch.setenv("FILTERED_IP_NETWORKS", "198.51.100.0/24")
+    mock_response = AsyncMock()
+    mock_response.json = lambda: {
+        "status": "success",
+        "lat": 37.7749,
+        "lon": -122.4194,
+        "city": "San Francisco",
+        "country": "United States",
+        "isp": "Comcast Cable Communications",
+        "org": "Comcast Cable Communications",
+        "as": "AS7922 Comcast Cable Communications, LLC"
+    }
+    mock_response.raise_for_status = lambda: None
+    mock_get.return_value = mock_response
+
+    response = client.get("/api/track", headers={"X-Forwarded-For": "198.51.101.23"})
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "success"}
+
+@patch("httpx.AsyncClient.get")
+def test_invalid_client_ip_ignored(mock_get):
+    response = client.get("/api/track", headers={"X-Forwarded-For": "not-an-ip"})
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ignored", "message": "Filtered IP range"}
+    mock_get.assert_not_called()
+
+def test_invalid_filtered_ip_network_config_fails_clearly(monkeypatch):
+    monkeypatch.setenv("FILTERED_IP_NETWORKS", "not-a-network")
+
+    with pytest.raises(ValueError, match="FILTERED_IP_NETWORKS contains an invalid IP network"):
+        services.get_filtered_ip_networks()
 
 @patch("httpx.AsyncClient.get")
 def test_simulated_public_ip(mock_get):

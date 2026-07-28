@@ -48,11 +48,16 @@ Instead of a local SQLite file, we use a serverless PostgreSQL database to keep 
 
 2. **Database Configuration:**
    The application requires a PostgreSQL connection string. Set the `DATABASE_URL` environment variable.
-   
+   Private IP filters should also be configured through environment variables, not committed files.
+
    If using `.env` (requires `uv add python-dotenv`):
    ```env
    DATABASE_URL="postgresql://user:password@hostname/dbname?sslmode=require"
+   FILTERED_IP_NETWORKS="198.51.100.0/24"
    ```
+
+   `FILTERED_IP_NETWORKS` accepts a comma-separated list of CIDR networks to ignore before geolocation lookup.
+   Use private deployment settings for real personal networks; the example above uses a reserved documentation range.
 
 3. **Run the server:**
    ```bash
@@ -74,6 +79,7 @@ This application is ready to be deployed to Render's free tier.
 4. **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 5. **Environment Variables**:
    - Add `DATABASE_URL` and set its value to your **Neon.tech connection string**. *(Note: Ensure you do NOT wrap the string in quotation marks `"` inside the Render dashboard).*
+   - Add `FILTERED_IP_NETWORKS` if you need to ignore personal networks. Use comma-separated CIDR ranges and keep real values out of git history.
 
 ## 🤖 Vibe Coding
 

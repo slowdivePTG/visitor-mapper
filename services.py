@@ -1,9 +1,12 @@
 import ipaddress
+import os
 
 import httpx
 from fastapi import Request
 
-BLOCKED_IP_NETWORKS = [
+FILTERED_IP_NETWORKS_ENV = "FILTERED_IP_NETWORKS"
+
+BUILT_IN_FILTERED_IP_NETWORKS = [
     ipaddress.ip_network("205.169.39.0/24"),
 ]
 
@@ -104,14 +107,33 @@ def is_bot_ip(geo_data: dict) -> bool:
 
     return False
 
-def is_blocked_ip(ip_address: str) -> bool:
-    """Check if an IP belongs to a manually blocked network."""
+def _parse_filtered_ip_networks(raw_networks: str):
+    networks = []
+    for raw_network in raw_networks.split(","):
+        network = raw_network.strip()
+        if not network:
+            continue
+
+        try:
+            networks.append(ipaddress.ip_network(network, strict=False))
+        except ValueError as exc:
+            raise ValueError(f"{FILTERED_IP_NETWORKS_ENV} contains an invalid IP network") from exc
+
+    return networks
+
+def get_filtered_ip_networks():
+    """Return built-in and private IP networks to ignore."""
+    private_networks = _parse_filtered_ip_networks(os.getenv(FILTERED_IP_NETWORKS_ENV, ""))
+    return [*BUILT_IN_FILTERED_IP_NETWORKS, *private_networks]
+
+def is_filtered_ip(ip_address: str) -> bool:
+    """Check if an IP belongs to a filtered network."""
     try:
         parsed_ip = ipaddress.ip_address(ip_address)
     except ValueError:
-        return False
+        return True
 
-    return any(parsed_ip in network for network in BLOCKED_IP_NETWORKS)
+    return any(parsed_ip in network for network in get_filtered_ip_networks())
 
 def is_bot_webdriver(webdriver_val: str | None) -> bool:
     """Check if the client-side navigator.webdriver signal indicates automation."""
@@ -128,7 +150,7 @@ def get_client_ip(request: Request) -> str:
 
 async def fetch_geolocation(ip_address: str):
     """Fetch geolocation data for an IP address using ip-api.com."""
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(trust_env=False) as client:
         response = await client.get(f"http://ip-api.com/json/{ip_address}")
         response.raise_for_status()
         return response.json()
