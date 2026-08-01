@@ -241,13 +241,13 @@ var themes = {{
         ocean: "#eff1f5",
         atmosphere: "#ccd0da",
         emptyLand: "#ccd0da",
-        stop1: [0.86, 0.66, 0.61],
-        stop2: [0.65, 0.45, 0.85],
-        stop3: [0.55, 0.30, 0.85],
+        stop1: [0.64, 0.60, 0.69],
+        stop2: [0.46, 0.42, 0.53],
+        stop3: [0.34, 0.29, 0.41],
         tooltipBg: "#9ca0b0",
         tooltipText: "#e6e9ef",
-        currentDot: "#8839ef",
-        currentDotRgba: "136, 57, 239",
+        currentDot: "#464057",
+        currentDotRgba: "70, 64, 87",
     }}
 }};
 
