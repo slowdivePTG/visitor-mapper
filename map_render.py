@@ -246,8 +246,8 @@ var themes = {{
         stop3: [0.34, 0.29, 0.41],
         tooltipBg: "#9ca0b0",
         tooltipText: "#e6e9ef",
-        currentDot: "#f2c94c",
-        currentDotRgba: "242, 201, 76",
+        currentDot: "#f5e0dc",
+        currentDotRgba: "245, 224, 220",
     }}
 }};
 
