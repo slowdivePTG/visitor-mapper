@@ -150,8 +150,8 @@ def generate_globe_map(records, show_current=True):
 # HTML / JS template
 # ---------------------------------------------------------------------------
 def _build_html(point_cloud, current_data):
-    pc_json = json.dumps(point_cloud)
-    cv_json = json.dumps(current_data)
+    pc_json = json.dumps(point_cloud, indent=2)
+    cv_json = json.dumps(current_data, indent=2)
 
     sc = _STYLE_CONFIG
 

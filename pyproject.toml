@@ -20,6 +20,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Build-time deps for regenerating land_skeleton.npz (precompute_skeleton.py).
+mapgen = [
+    "shapely>=2.0",
+]
 dev = [
     "pytest",
     "ruff"
