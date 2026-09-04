@@ -233,8 +233,8 @@ var themes = {{
         stop3: [0.96, 0.88, 0.86],
         tooltipBg: "#6c7086",
         tooltipText: "#11111b",
-        currentDot: "#f2c94c",
-        currentDotRgba: "242, 201, 76",
+        currentDot: "#f5e0dc",
+        currentDotRgba: "245, 224, 220",
     }},
     light: {{
         bg: "rgba(230, 233, 239, 0)",
@@ -246,8 +246,8 @@ var themes = {{
         stop3: [0.34, 0.29, 0.41],
         tooltipBg: "#9ca0b0",
         tooltipText: "#e6e9ef",
-        currentDot: "#f5e0dc",
-        currentDotRgba: "245, 224, 220",
+        currentDot: "#f2c94c",
+        currentDotRgba: "242, 201, 76",
     }}
 }};
 
